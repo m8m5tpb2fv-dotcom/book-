@@ -17,6 +17,24 @@
   </head>
   <body>
     <div id="root"></div>
+    <script>
+      // If the app bundle fails to load or run (e.g. a stale cached index.html
+      // pointing at a deleted hashed JS file from a previous deploy), force a
+      // cache-busted reload instead of leaving a permanent blank screen —
+      // Telegram's in-app browser gives users no easy way to hard-refresh.
+      // Capped at 2 auto-retries so a genuine bug doesn't loop forever.
+      (function () {
+        var key = 'wave_boot_retries';
+        var retries = Number(sessionStorage.getItem(key) || '0');
+        if (retries >= 2) return;
+        window.__waveBootTimer = setTimeout(function () {
+          sessionStorage.setItem(key, String(retries + 1));
+          var url = new URL(window.location.href);
+          url.searchParams.set('_r', Date.now().toString());
+          window.location.replace(url.toString());
+        }, 5000);
+      })();
+    </script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
